@@ -1,0 +1,44 @@
+.TH YAML_NEXT_EVENT 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_next_event, yaml_has_pending_events, yaml_event_count \- event queue operations
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "int yaml_next_event(yaml_ctx_t *" ctx ", yaml_event_t *" event ");"
+.BI "int yaml_has_pending_events(yaml_ctx_t *" ctx ");"
+.BI "size_t yaml_event_count(yaml_ctx_t *" ctx ");"
+.fi
+.SH DESCRIPTION
+.BR yaml_next_event ()
+dequeues the next event from the context's event queue.
+The event structure is filled with the event type and data.
+.PP
+.BR yaml_has_pending_events ()
+returns 1 if there are events waiting to be dequeued, 0 otherwise.
+.PP
+.BR yaml_event_count ()
+returns the number of events currently in the queue.
+.SH RETURN VALUE
+.BR yaml_next_event ()
+returns 1 if an event was dequeued, 0 if the queue is empty.
+.SH EVENT TYPES
+The
+.I yaml_event_t
+structure contains:
+.TP
+.I type
+One of YAML_EVENT_STREAM_START, YAML_EVENT_STREAM_END,
+YAML_EVENT_DOCUMENT_START, YAML_EVENT_DOCUMENT_END,
+YAML_EVENT_MAPPING_START, YAML_EVENT_MAPPING_END,
+YAML_EVENT_SEQUENCE_START, YAML_EVENT_SEQUENCE_END,
+YAML_EVENT_SCALAR, YAML_EVENT_ALIAS, YAML_EVENT_ERROR.
+.TP
+.I data
+Union containing event-specific data (scalar value, tag, anchor, etc.).
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_create (3),
+.BR yaml_feed_input (3),
+.BR yaml_event_t (3)

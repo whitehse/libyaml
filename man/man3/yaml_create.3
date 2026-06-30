@@ -1,0 +1,41 @@
+.TH YAML_CREATE 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_create, yaml_create_with_config, yaml_destroy, yaml_reset \- libyaml context lifecycle
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "yaml_ctx_t *yaml_create(yaml_role_t " role ");"
+.BI "yaml_ctx_t *yaml_create_with_config(yaml_role_t " role ", const yaml_config_t *" config ");"
+.BI "void yaml_destroy(yaml_ctx_t *" ctx ");"
+.BI "void yaml_reset(yaml_ctx_t *" ctx ");"
+.fi
+.SH DESCRIPTION
+.BR yaml_create ()
+creates a new context with the specified
+.I role
+(YAML_ROLE_PARSER or YAML_ROLE_SERIALIZER) and default configuration.
+.PP
+.BR yaml_create_with_config ()
+creates a new context with custom configuration.
+The
+.I config
+parameter specifies event queue size, max document size, and strict mode.
+.PP
+.BR yaml_destroy ()
+frees all resources associated with the context.
+.PP
+.BR yaml_reset ()
+resets the context to its initial state, clearing all parsed data and events.
+.SH RETURN VALUE
+.BR yaml_create ()
+and
+.BR yaml_create_with_config ()
+return a pointer to the new context, or NULL on failure.
+.SH THREAD SAFETY
+Each context must be used from a single thread at a time.
+Multiple contexts can be used concurrently from different threads.
+.SH SEE ALSO
+.BR yaml_feed_input (3),
+.BR yaml_next_event (3),
+.BR yaml_get_output (3)

@@ -1,0 +1,32 @@
+.TH YAML_FEED_INPUT 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_feed_input \- feed raw YAML text into a parser context
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "size_t yaml_feed_input(yaml_ctx_t *" ctx ", const uint8_t *" data ", size_t " len ");"
+.fi
+.SH DESCRIPTION
+.BR yaml_feed_input ()
+feeds raw YAML text bytes into a parser context. The parser processes
+the input and enqueues events that can be dequeued with
+.BR yaml_next_event (3).
+.PP
+For serializer contexts, this function stores the input for later use
+in round-trip scenarios.
+.PP
+The function respects the
+.I max_document_size
+configuration limit. If the accumulated input exceeds this limit,
+an error event is emitted and 0 is consumed.
+.SH RETURN VALUE
+Returns the number of bytes consumed. Returns 0 if the input exceeds
+.I max_document_size
+or on error.
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_create (3),
+.BR yaml_next_event (3),
+.BR yaml_config_t (3)

@@ -1,0 +1,72 @@
+.TH YAML_LOOKUP_SCALAR 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_lookup_scalar, yaml_get_child_count, yaml_get_child_key,
+yaml_knowledge_size, yaml_knowledge_depth \- knowledge tree operations
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "const char *yaml_lookup_scalar(yaml_ctx_t *" ctx ", const char *" path ", size_t *" out_len ");"
+.BI "size_t yaml_get_child_count(yaml_ctx_t *" ctx ", const char *" path ");"
+.BI "int yaml_get_child_key(yaml_ctx_t *" ctx ", const char *" path ", size_t " index ", const char **" out_key ", size_t *" out_key_len ");"
+.BI "size_t yaml_knowledge_size(yaml_ctx_t *" ctx ");"
+.BI "size_t yaml_knowledge_depth(yaml_ctx_t *" ctx ");"
+.fi
+.SH DESCRIPTION
+The knowledge tree stores parsed YAML key-value pairs for efficient lookup.
+.PP
+.BR yaml_lookup_scalar ()
+looks up a scalar value by dot-separated key path (e.g., "server.host").
+Returns a pointer to the internal value, or NULL if not found.
+The pointer is valid until the next
+.BR yaml_feed_input ()
+or
+.BR yaml_reset ()
+call.
+.PP
+.BR yaml_get_child_count ()
+returns the number of direct children at the given path.
+Use an empty string "" for the root.
+.PP
+.BR yaml_get_child_key ()
+gets the key name of the Nth child at the given path.
+Returns 0 on success, -1 if not found.
+.PP
+.BR yaml_knowledge_size ()
+returns the total number of key-value pairs in the tree.
+.PP
+.BR yaml_knowledge_depth ()
+returns the maximum depth of the tree.
+.SH EXAMPLE
+.nf
+yaml_feed_input(ctx, data, len);
+/* Drain events */
+yaml_event_t ev;
+while (yaml_next_event(ctx, &ev)) {}
+
+/* Look up nested value */
+size_t vlen;
+const char *val = yaml_lookup_scalar(ctx, "server.port", &vlen);
+if (val) printf("port = %.*s\\n", (int)vlen, val);
+
+/* Enumerate children */
+size_t n = yaml_get_child_count(ctx, "server");
+for (size_t i = 0; i < n; i++) {
+    const char *key; size_t klen;
+    yaml_get_child_key(ctx, "server", i, &key, &klen);
+    printf("  %.*s\\n", (int)klen, key);
+}
+.fi
+.SH RETURN VALUE
+.BR yaml_lookup_scalar ()
+returns a pointer to the value, or NULL if not found.
+.BR yaml_get_child_count ()
+returns the number of children, or 0 if path not found.
+.BR yaml_get_child_key ()
+returns 0 on success, -1 on error.
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_create (3),
+.BR yaml_feed_input (3),
+.BR yaml_reset (3)

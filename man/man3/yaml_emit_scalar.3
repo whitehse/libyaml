@@ -1,0 +1,47 @@
+.TH YAML_EMIT_SCALAR 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_emit_scalar, yaml_emit_mapping_start, yaml_emit_sequence_start,
+yaml_emit_mapping_end, yaml_emit_sequence_end, yaml_emit_document_start,
+yaml_emit_document_end, yaml_emit_stream_start, yaml_emit_stream_end,
+yaml_emit_alias \- serializer event emission
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "int yaml_emit_stream_start(yaml_ctx_t *" ctx ");"
+.BI "int yaml_emit_stream_end(yaml_ctx_t *" ctx ");"
+.BI "int yaml_emit_document_start(yaml_ctx_t *" ctx ", int " implicit ");"
+.BI "int yaml_emit_document_end(yaml_ctx_t *" ctx ", int " implicit ");"
+.BI "int yaml_emit_mapping_start(yaml_ctx_t *" ctx ", const char *" tag ", const char *" anchor ");"
+.BI "int yaml_emit_mapping_end(yaml_ctx_t *" ctx ");"
+.BI "int yaml_emit_sequence_start(yaml_ctx_t *" ctx ", const char *" tag ", const char *" anchor ");"
+.BI "int yaml_emit_sequence_end(yaml_ctx_t *" ctx ");"
+.BI "int yaml_emit_scalar(yaml_ctx_t *" ctx ", const char *" value ", size_t " value_len ", const char *" tag ", yaml_scalar_style_t " style ");"
+.BI "int yaml_emit_alias(yaml_ctx_t *" ctx ", const char *" name ");"
+.fi
+.SH DESCRIPTION
+These functions emit events into a serializer context. Each function
+enqueues an event and writes the corresponding YAML text to the output buffer.
+.PP
+.BR yaml_emit_scalar ()
+emits a scalar event with optional tag and style (PLAIN, SINGLE_QUOTED,
+DOUBLE_QUOTED, LITERAL, FOLDED).
+.PP
+.BR yaml_emit_mapping_start ()
+and
+.BR yaml_emit_sequence_start ()
+emit collection start events with optional tag and anchor.
+.PP
+.BR yaml_emit_alias ()
+emits an alias reference (*name).
+.SH RETURN VALUE
+All functions return 0 on success, -1 on error (e.g., wrong role, NULL context).
+.SH OUTPUT
+The serialized YAML text can be retrieved with
+.BR yaml_get_output (3).
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_create (3),
+.BR yaml_get_output (3),
+.BR yaml_serialize_kv (3)
