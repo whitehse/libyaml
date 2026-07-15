@@ -70,11 +70,8 @@ Files: src/yaml.c
 ## 5. UTF-8 and Unicode
 
 ### 5.1 Unicode Escape Sequences in Double-Quoted Scalars
-Status: Not implemented
-The parser handles basic escapes (\n, \t, \\, \", \') but not:
-  - \uXXXX (4-digit Unicode)
-  - \UXXXXXXXX (8-digit Unicode)
-  - \xXX (2-digit hex)
+Status: Implemented
+Parser handles \n, \t, \\, \", \', \xXX, \uXXXX, \UXXXXXXXX (UTF-8 via write_utf8).
 Files: src/yaml.c (parse_quoted_scalar)
 
 ---
