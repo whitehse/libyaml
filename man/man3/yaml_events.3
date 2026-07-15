@@ -1,0 +1,167 @@
+.TH YAML_EVENTS 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_events \- YAML event types and data structures
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.fi
+.SH DESCRIPTION
+This page provides a comprehensive reference of all event types, scalar styles,
+and data structures used by the libyaml event-driven interface.
+.SH EVENT TYPES
+The
+.I yaml_event_type_t
+enumeration defines all possible event types:
+.TP
+.B YAML_EVENT_NONE
+No event (zero value). Used as a sentinel.
+.TP
+.B YAML_EVENT_STREAM_START
+Marks the beginning of a YAML stream.
+.TP
+.B YAML_EVENT_STREAM_END
+Marks the end of a YAML stream.
+.TP
+.B YAML_EVENT_DOCUMENT_START
+Marks the beginning of a YAML document. Contains an
+.I implicit
+flag: 1 if the \(lq---\(rq marker was omitted.
+.TP
+.B YAML_EVENT_DOCUMENT_END
+Marks the end of a YAML document.
+.TP
+.B YAML_EVENT_MAPPING_START
+Marks the beginning of a mapping (key-value collection).
+Contains an optional tag and anchor.
+.TP
+.B YAML_EVENT_MAPPING_END
+Marks the end of a mapping.
+.TP
+.B YAML_EVENT_SEQUENCE_START
+Marks the beginning of a sequence (ordered list).
+Contains an optional tag and anchor.
+.TP
+.B YAML_EVENT_SEQUENCE_END
+Marks the end of a sequence.
+.TP
+.B YAML_EVENT_SCALAR
+A scalar value. Contains the value string, optional tag, and style.
+.TP
+.B YAML_EVENT_ALIAS
+An alias reference to a previously anchored node.
+Contains the anchor name.
+.TP
+.B YAML_EVENT_ERROR
+An error event. Contains a diagnostic message.
+.TP
+.B YAML_EVENT_MAX
+Sentinel for array sizing (not a valid event type).
+.SH SCALAR STYLES
+The
+.I yaml_scalar_style_t
+enumeration defines how a scalar is quoted:
+.TP
+.B YAML_SCALAR_PLAIN
+Unquoted scalar (default, auto-selected style).
+.TP
+.B YAML_SCALAR_SINGLE_QUOTED
+Single-quoted scalar (\(lq'value'\(rq).
+.TP
+.B YAML_SCALAR_DOUBLE_QUOTED
+Double-quoted scalar (\(lq"value"\(rq).
+.TP
+.B YAML_SCALAR_LITERAL
+Literal block scalar (\(lq|\(rq). Preserves newlines.
+.TP
+.B YAML_SCALAR_FOLDED
+Folded block scalar (\(lq>\(rq). Folds newlines to spaces.
+.SH DATA STRUCTURES
+.SS yaml_event_t
+The main event structure:
+.RS
+.nf
+typedef struct {
+    yaml_event_type_t type;
+    union {
+        yaml_scalar_t           scalar;
+        yaml_alias_t            alias;
+        yaml_document_start_t   document_start;
+        yaml_collection_start_t collection_start;
+        struct {
+            char    message[YAML_MAX_ERROR_LEN];
+            size_t  message_len;
+        } error;
+    } data;
+} yaml_event_t;
+.fi
+.RE
+.SS yaml_scalar_t
+Scalar value data:
+.RS
+.nf
+typedef struct {
+    char    value[YAML_MAX_SCALAR_LEN];  /* up to 4096 bytes */
+    size_t  value_len;
+    char    tag[YAML_MAX_TAG_LEN];       /* up to 256 bytes */
+    size_t  tag_len;
+    yaml_scalar_style_t style;
+} yaml_scalar_t;
+.fi
+.RE
+.SS yaml_alias_t
+Alias reference data:
+.RS
+.nf
+typedef struct {
+    char    anchor[YAML_MAX_ALIAS_LEN];  /* up to 256 bytes */
+    size_t  anchor_len;
+} yaml_alias_t;
+.fi
+.RE
+.SS yaml_document_start_t
+Document boundary data:
+.RS
+.nf
+typedef struct {
+    int implicit;  /* 1 if --- was omitted */
+} yaml_document_start_t;
+.fi
+.RE
+.SS yaml_collection_start_t
+Mapping/sequence start data:
+.RS
+.nf
+typedef struct {
+    char    tag[YAML_MAX_TAG_LEN];
+    size_t  tag_len;
+    char    anchor[YAML_MAX_ALIAS_LEN];
+    size_t  anchor_len;
+} yaml_collection_start_t;
+.fi
+.RE
+.SH RETURN VALUE
+This page is a data structure reference. For return values of individual
+functions, see their respective manpages listed in
+.BR "SEE ALSO" .
+.SH LIMITS
+.TP
+.B YAML_MAX_SCALAR_LEN
+Maximum scalar value length: 4096 bytes.
+.TP
+.B YAML_MAX_TAG_LEN
+Maximum tag length: 256 bytes.
+.TP
+.B YAML_MAX_ALIAS_LEN
+Maximum anchor/alias name length: 256 bytes.
+.TP
+.B YAML_MAX_ERROR_LEN
+Maximum error message length: 512 bytes.
+.SH THREAD SAFETY
+Event structures are value types and can be safely copied.
+Context operations are not thread-safe.
+.SH SEE ALSO
+.BR yaml_next_event (3),
+.BR yaml_emit_scalar (3),
+.BR yaml_emit_mapping_start (3),
+.BR yaml_emit_alias (3),
+.BR yaml_create (3)

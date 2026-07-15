@@ -1,0 +1,67 @@
+.TH YAML_EMIT_MAPPING_START 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_emit_mapping_start, yaml_emit_sequence_start,
+yaml_emit_mapping_end, yaml_emit_sequence_end \- collection lifecycle emission
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "int yaml_emit_mapping_start(yaml_ctx_t *" ctx ", const char *" tag ", const char *" anchor ");"
+.BI "int yaml_emit_sequence_start(yaml_ctx_t *" ctx ", const char *" tag ", const char *" anchor ");"
+.BI "int yaml_emit_mapping_end(yaml_ctx_t *" ctx ");"
+.BI "int yaml_emit_sequence_end(yaml_ctx_t *" ctx ");"
+.fi
+.SH DESCRIPTION
+These functions manage the lifecycle of YAML collections (mappings and sequences)
+in a serializer context. Collections must be properly opened with a start event
+and closed with a matching end event.
+.PP
+.BR yaml_emit_mapping_start ()
+emits a mapping start event, opening a new key-value block. The
+.I tag
+parameter is an optional YAML tag (e.g., \(lq!!map\(rq); pass NULL for no tag.
+The
+.I anchor
+parameter is an optional anchor name for later aliasing; pass NULL for no anchor.
+In block style, this produces \(lq{key: value}\(rq pairs; in flow style, \(lq{...}\(rq.
+.PP
+.BR yaml_emit_sequence_start ()
+emits a sequence start event, opening a new ordered list. The
+.I tag
+and
+.I anchor
+parameters work identically to
+.BR yaml_emit_mapping_start ().
+In block style, this produces \(lq\- item\(rq lines; in flow style, \(lq[...]\(rq.
+.PP
+.BR yaml_emit_mapping_end ()
+emits a mapping end event, closing the most recently opened mapping.
+.PP
+.BR yaml_emit_sequence_end ()
+emits a sequence end event, closing the most recently opened sequence.
+.PP
+Start and end events must be balanced: every mapping start must have a
+corresponding mapping end, and likewise for sequences. Nesting is permitted
+and tracked internally by the serializer.
+.SH RETURN VALUE
+All four functions return 0 on success, \-1 on error. Errors include NULL context,
+wrong role (non-serializer), or internal queue overflow.
+.SH EXAMPLE
+.nf
+yaml_ctx_t *s = yaml_create(YAML_ROLE_SERIALIZER);
+yaml_emit_stream_start(s);
+yaml_emit_document_start(s, 1);
+yaml_emit_mapping_start(s, NULL, NULL);
+yaml_emit_scalar(s, "key", 3, NULL, YAML_SCALAR_PLAIN);
+yaml_emit_scalar(s, "value", 5, NULL, YAML_SCALAR_PLAIN);
+yaml_emit_mapping_end(s);
+yaml_emit_document_end(s, 1);
+yaml_emit_stream_end(s);
+.fi
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_emit_scalar (3),
+.BR yaml_emit_alias (3),
+.BR yaml_create (3),
+.BR yaml_get_output (3)

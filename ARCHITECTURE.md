@@ -63,14 +63,29 @@ This is a **pure state machine** YAML parser and serializer. No function pointer
 
 The parser maintains an explicit state (IDLE, STREAM, DOCUMENT, MAPPING_KEY, MAPPING_VALUE, SEQUENCE, DONE, ERROR). Input bytes are tokenized into YAML tokens (scalars, keys, markers, comments), events are enqueued, and the knowledge tree is populated. The serializer translates events into YAML text in the output buffer. Caller drives: feed → next_event loop until no more events, drain output, repeat.
 
-## Future Growth
+## Implemented Features (as of 2026-06-30)
 
-- Literal (|) and folded (>) block scalar support.
-- Full YAML 1.2 tag resolution and schema support.
-- Anchor/alias resolution.
-- Indentation-based nesting with proper depth tracking.
-- Event queue backpressure handling.
-- When core is extended, address edge cases with documentation and manpage updates.
+The following features have been implemented beyond the initial skeleton:
+
+- **Block scalar support**: Literal (`|`) and folded (`>`) block scalar parsing with chomp indicators.
+- **Flow collection support**: Flow sequences (`[a, b]`) and flow mappings (`{k: v}`) including nested flow.
+- **Anchor/alias parsing**: `&anchor` definitions and `*alias` references emitted as YAML_EVENT_ALIAS events.
+- **Tag parsing**: `!tag` and `!!type` prefixes parsed and stored in event structs. Strict mode rejects unknown tags.
+- **Indentation-based nesting**: Proper indent stack with depth tracking for nested mappings and sequences.
+- **Multiline scalar continuation**: Plain scalars spanning multiple lines at same/greater indent.
+- **Serializer improvements**: Flow style output (configurable), tag output, anchor/alias emission, proper indentation tracking.
+- **Error events**: YAML_EVENT_ERROR with embedded char array (copy-safe). Triggered by malformed input, UTF-8 violations, max_document_size exceeded.
+- **Knowledge tree API**: `yaml_get_child_count()`, `yaml_knowledge_depth()` for tree exploration.
+- **Status query API**: `yaml_parser_state()`, `yaml_depth()`, `yaml_has_pending_events()`, `yaml_event_count()`, `yaml_output_pending()`, `yaml_output_size()`.
+- **Fuzz harnesses**: 3 targets (parser, serializer, knowledge tree).
+- **Valgrind targets**: For all test binaries (smoke, dialectic, errors, knowledge, nesting, block_scalar).
+
+## Remaining Growth Areas
+
+- Event queue backpressure policy (currently silent drop on overflow).
+- Deep nested key-path lookup with sequence intermediates in knowledge tree.
+- Unicode escape sequences (\uXXXX, \UXXXXXXXX) in double-quoted scalars.
+- Partial token buffering across incremental feed_input calls.
 
 ## Documentation and Manpages
 

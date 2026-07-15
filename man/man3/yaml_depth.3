@@ -1,0 +1,42 @@
+.TH YAML_DEPTH 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_depth, yaml_parser_state \- context status queries
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "int yaml_depth(yaml_ctx_t *" ctx ");"
+.BI "const char *yaml_parser_state(yaml_ctx_t *" ctx ");"
+.fi
+.SH DESCRIPTION
+.BR yaml_depth ()
+returns the current nesting depth of the context. For a parser context,
+this is the indentation depth; for a serializer context, this is the
+serialization depth. A return value of 0 indicates top level.
+Returns \-1 if
+.I ctx
+is NULL.
+.PP
+.BR yaml_parser_state ()
+returns a human-readable string describing the current parser state.
+Possible values include \(lqIDLE\(rq, \(lqSTREAM\(rq, \(lqDOCUMENT\(rq, and \(lqDONE\(rq.
+Returns NULL if
+.I ctx
+is NULL or the context role is not
+.BR YAML_ROLE_PARSER .
+.SH RETURN VALUE
+.BR yaml_depth ()
+returns the current nesting depth as a non-negative integer,
+or \-1 if
+.I ctx
+is NULL.
+.PP
+.BR yaml_parser_state ()
+returns a pointer to a static string, or NULL if the context is NULL
+or not a parser.
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_create (3),
+.BR yaml_next_event (3),
+.BR yaml_has_pending_events (3)

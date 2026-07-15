@@ -1,0 +1,45 @@
+.TH YAML_OUTPUT_PENDING 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_output_pending, yaml_output_size \- serializer output buffer queries
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "size_t yaml_output_pending(yaml_ctx_t *" ctx ");"
+.BI "size_t yaml_output_size(yaml_ctx_t *" ctx ");"
+.fi
+.SH DESCRIPTION
+.BR yaml_output_pending ()
+returns the number of bytes currently buffered in the serializer output.
+For a parser context or a NULL context, returns 0.
+This is useful to determine the required buffer size before calling
+.BR yaml_get_output ().
+.PP
+.BR yaml_output_size ()
+is an alias for
+.BR yaml_output_pending ()
+and returns the same value. Both functions query the same internal buffer.
+.SH RETURN VALUE
+Both functions return the number of buffered output bytes as a
+.IR size_t .
+Returns 0 if the context is NULL, the role is not
+.BR YAML_ROLE_SERIALIZER ,
+or the output buffer is empty.
+.SH EXAMPLE
+.nf
+/* Emit some events */
+yaml_emit_mapping_start(s, NULL, NULL);
+yaml_emit_scalar(s, "key", 3, NULL, YAML_SCALAR_PLAIN);
+yaml_emit_mapping_end(s);
+
+/* Check output size before draining */
+size_t sz = yaml_output_pending(s);
+uint8_t *buf = malloc(sz);
+yaml_get_output(s, buf, sz);
+.fi
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_get_output (3),
+.BR yaml_emit_scalar (3),
+.BR yaml_emit_mapping_start (3)

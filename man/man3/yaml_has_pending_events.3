@@ -1,0 +1,44 @@
+.TH YAML_HAS_PENDING_EVENTS 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_has_pending_events, yaml_event_count \- event queue inspection
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "int yaml_has_pending_events(yaml_ctx_t *" ctx ");"
+.BI "size_t yaml_event_count(yaml_ctx_t *" ctx ");"
+.fi
+.SH DESCRIPTION
+.BR yaml_has_pending_events ()
+checks whether the context's event queue contains at least one event
+waiting to be dequeued via
+.BR yaml_next_event ().
+Returns 1 if events are available, 0 otherwise.
+.PP
+.BR yaml_event_count ()
+returns the total number of events currently in the queue.
+This is useful for pre-allocating buffers or determining how many
+.BR yaml_next_event ()
+calls can be made without blocking.
+.SH RETURN VALUE
+.BR yaml_has_pending_events ()
+returns 1 if events are pending, 0 if the queue is empty.
+.PP
+.BR yaml_event_count ()
+returns the number of events in the queue as a
+.IR size_t .
+.SH EXAMPLE
+.nf
+yaml_feed_input(ctx, data, len);
+while (yaml_has_pending_events(ctx)) {
+    yaml_event_t ev;
+    yaml_next_event(ctx, &ev);
+    /* process ev */
+}
+.fi
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_next_event (3),
+.BR yaml_feed_input (3),
+.BR yaml_event_count (3)

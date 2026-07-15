@@ -1,0 +1,61 @@
+.TH YAML_SERIALIZE_KV 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_serialize_kv, yaml_merge_events \- serialization and merge helpers
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "int yaml_serialize_kv(yaml_ctx_t *" ctx ", const char *" key ", const char *" value ", size_t " value_len ");"
+.BI "int yaml_merge_events(yaml_ctx_t *" dst ", yaml_ctx_t *" src ");"
+.fi
+.SH DESCRIPTION
+.BR yaml_serialize_kv ()
+is a convenience function that emits a complete YAML key-value pair into
+the serializer output buffer. The
+.I key
+is emitted as a plain scalar; the
+.I value
+is emitted as a scalar of length
+.IR value_len .
+This is equivalent to calling
+.BR yaml_emit_scalar ()
+twice (once for the key, once for the value), but wraps them in a mapping
+context automatically. Returns 0 on success, \-1 on error.
+.PP
+.BR yaml_merge_events ()
+merges events from a source context
+.I src
+into a destination serializer context
+.IR dst .
+Events are forwarded from the source event queue into the destination;
+this is pure event plumbing with no I/O. The caller owns both contexts.
+Returns the number of events merged, or \-1 on error.
+.PP
+This is useful for combining multiple parsed YAML streams or appending
+additional events to an existing serializer context.
+.SH RETURN VALUE
+.BR yaml_serialize_kv ()
+returns 0 on success, \-1 on error.
+.PP
+.BR yaml_merge_events ()
+returns the number of events merged on success, or \-1 on error.
+.SH EXAMPLE
+.nf
+/* Quick key-value serialization */
+yaml_ctx_t *s = yaml_create(YAML_ROLE_SERIALIZER);
+yaml_emit_stream_start(s);
+yaml_emit_document_start(s, 1);
+yaml_emit_mapping_start(s, NULL, NULL);
+yaml_serialize_kv(s, "hostname", "localhost", 9);
+yaml_serialize_kv(s, "port", "8080", 4);
+yaml_emit_mapping_end(s);
+yaml_emit_document_end(s, 1);
+yaml_emit_stream_end(s);
+.fi
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_emit_scalar (3),
+.BR yaml_emit_mapping_start (3),
+.BR yaml_get_output (3),
+.BR yaml_create (3)

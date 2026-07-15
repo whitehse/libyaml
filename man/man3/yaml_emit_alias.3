@@ -1,0 +1,48 @@
+.TH YAML_EMIT_ALIAS 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_emit_alias \- emit a YAML alias reference
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "int yaml_emit_alias(yaml_ctx_t *" ctx ", const char *" name ");"
+.fi
+.SH DESCRIPTION
+.BR yaml_emit_alias ()
+emits an alias event referencing a previously anchored node.
+The
+.I name
+parameter is the anchor name (without the \(lq*\(rq prefix).
+In the serialized output, this produces \(lq*name\(rq.
+.PP
+An alias can only reference an anchor that was previously defined
+via
+.BR yaml_emit_mapping_start (),
+.BR yaml_emit_sequence_start (),
+or
+.BR yaml_emit_scalar ()
+with a non-NULL anchor parameter.
+The alias must appear after the anchor in the output stream.
+.SH RETURN VALUE
+Returns 0 on success, \-1 on error. Errors include NULL context,
+wrong role (non-serializer), NULL or empty
+.I name,
+or queue overflow.
+.SH EXAMPLE
+.nf
+yaml_emit_mapping_start(s, NULL, "base");
+yaml_emit_scalar(s, "image", 5, NULL, YAML_SCALAR_PLAIN);
+yaml_emit_scalar(s, "ubuntu:22.04", 12, NULL, YAML_SCALAR_PLAIN);
+yaml_emit_mapping_end(s);
+yaml_emit_mapping_start(s, NULL, NULL);
+yaml_emit_scalar(s, "<<", 2, NULL, YAML_SCALAR_PLAIN);
+yaml_emit_alias(s, "base");
+yaml_emit_mapping_end(s);
+.fi
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_emit_mapping_start (3),
+.BR yaml_emit_sequence_start (3),
+.BR yaml_emit_scalar (3),
+.BR yaml_events (3)

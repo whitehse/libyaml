@@ -1,0 +1,53 @@
+.TH YAML_GET_CHILD_COUNT 3 "2026-06-30" "libyaml 0.1.0" "libyaml library"
+.SH NAME
+yaml_get_child_count, yaml_knowledge_depth \- knowledge tree enumeration
+.SH SYNOPSIS
+.nf
+.B #include <yaml.h>
+.PP
+.BI "size_t yaml_get_child_count(yaml_ctx_t *" ctx ", const char *" path ");"
+.BI "size_t yaml_knowledge_depth(yaml_ctx_t *" ctx ");"
+.fi
+.SH DESCRIPTION
+.BR yaml_get_child_count ()
+returns the number of direct children of the node at the given
+.I path
+in the knowledge tree.
+The
+.I path
+is a dot-separated key string (e.g., \(lqserver\(rq or \(lqserver.logging\(rq).
+Pass an empty string \(lq\(rq for root-level children.
+Returns 0 if the path is not found or the knowledge tree is empty.
+.PP
+.BR yaml_knowledge_depth ()
+returns the maximum depth of the knowledge tree.
+A depth of 0 means the tree is empty; 1 means only top-level keys exist;
+2 means at least one top-level key has sub-keys; and so on.
+.SH RETURN VALUE
+.BR yaml_get_child_count ()
+returns the number of direct children as a
+.IR size_t .
+Returns 0 if the path is not found or the context is NULL.
+.PP
+.BR yaml_knowledge_depth ()
+returns the maximum tree depth as a
+.IR size_t .
+Returns 0 if the context is NULL or the tree is empty.
+.SH EXAMPLE
+.nf
+/* After parsing YAML into ctx */
+size_t n = yaml_get_child_count(ctx, "");
+for (size_t i = 0; i < n; i++) {
+    const char *key;
+    size_t key_len;
+    yaml_get_child_key(ctx, "", i, &key, &key_len);
+    printf("root key %zu: %.*s\\n", i, (int)key_len, key);
+}
+.fi
+.SH THREAD SAFETY
+Not thread-safe. Use from a single thread at a time.
+.SH SEE ALSO
+.BR yaml_lookup_scalar (3),
+.BR yaml_get_child_key (3),
+.BR yaml_knowledge_size (3),
+.BR yaml_feed_input (3)
